@@ -8,7 +8,7 @@ const app = express();
 
 // ✅ 1. Set CORS middleware first
 app.use(cors({
-    origin: ['https://nodegemini-frontend.onrender.com/', 'http://localhost:5174'],
+    origin: ['https://nodegemini-frontend.onrender.com/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false // Only true if you're using cookies
