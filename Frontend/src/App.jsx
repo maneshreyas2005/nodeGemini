@@ -5,6 +5,7 @@ import './App.css'
 import GameDifficultySelector from './components/GameDifficultySelector'
 import QuizApp from './components/QuizApp'
 import AptitudeExam from './components/AptitudeExam'
+import GetStartedPage from './components/GetStartedPage'
 
 function App() {
 
@@ -12,7 +13,7 @@ function App() {
     <div>
       {/* <GameDifficultySelector/> */}
       {/* <QuizApp/> */}
-      <AptitudeExam/>
+      <GetStartedPage />
     </div>
   )
 }

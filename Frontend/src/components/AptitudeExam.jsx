@@ -131,7 +131,7 @@ const QuizApp = () => {
         setQuizSubmitted(false);
         setShowResults(false);
         setCurrentQuestionIndex(0);
-        setTimeLeft(600);
+        setTimeLeft(quizData.length * 60);
         setQuizStarted(false);
     };
 

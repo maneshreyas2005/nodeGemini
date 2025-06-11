@@ -38,7 +38,7 @@ Return ONLY a JSON array of exactly ${n} objects. Each object must follow this f
             { contents: [{ parts: [{ text: prompt }] }] },
             { headers: { 'Content-Type': 'application/json' } }
         );
-
+ 
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!raw) throw new Error('Empty response from Gemini');
         const cleanText = raw.trim().replace(/^```json|^```|```$/g, '').trim();
