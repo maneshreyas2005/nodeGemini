@@ -5,6 +5,7 @@ import mcqRouter from './src/routes/MCQRoutes.js';
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 
 // ✅ 1. Set CORS middleware first
 app.use(cors({
@@ -13,9 +14,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false // Only true if you're using cookies
 }));
-
-
-app.use(express.json());
 
 
 app.use('/mcqs', mcqRouter);
