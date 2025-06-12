@@ -25,7 +25,7 @@ const QuizApp = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await axios.post('http://localhost:3001/mcqs/generate',
+                const res = await axios.post('https://nodegemini-backend.onrender.com/mcqs/generate',
                     { topic: topic, count: count },
                     {
                         headers: { 'Content-Type': 'application/json' },
