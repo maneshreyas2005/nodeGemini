@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Check, X, RotateCcw, Send, Clock } from 'lucide-react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
+
 
 const QuizApp = () => {
     const [quizData, setQuizData] = useState([]);
@@ -13,16 +15,25 @@ const QuizApp = () => {
     const [timeLeft, setTimeLeft] = useState(null); // 10 minutes timer
     const [quizStarted, setQuizStarted] = useState(false);
 
+    const location = useLocation();
+
+    const count = location.state?.count || 0;
+    const topic = location.state?.topic || "Quantitative Aptitude";
+
+
+
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await axios.post('https://nodegemini-backend.onrender.com/mcqs/generate',
-                    { topic: 'Quantitative Aptitude' },
+                const res = await axios.post('http://localhost:3001/mcqs/generate',
+                    { topic: topic, count: count },
                     {
                         headers: { 'Content-Type': 'application/json' },
                         withCredentials: false
                     }
                 );
+                console.log(topic)
+                console.log(res.data)
 
                 const formattedQuestions = res.data.map((mcq, index) => ({
                     id: index + 1,
@@ -34,6 +45,7 @@ const QuizApp = () => {
                 setQuizData(formattedQuestions);
                 setTimeLeft(formattedQuestions.length * 60);
                 setLoading(false);
+
             } catch (error) {
                 console.error('Failed to fetch questions', error);
                 setLoading(false);
@@ -41,7 +53,7 @@ const QuizApp = () => {
         };
 
         fetchQuestions();
-    }, []);
+    }, [count]);
 
     useEffect(() => {
         if (quizStarted && !quizSubmitted && timeLeft > 0) {
@@ -167,7 +179,7 @@ const QuizApp = () => {
                                 <span className="font-semibold text-blue-800">Quiz Information</span>
                             </div>
                             <div className="text-sm text-blue-700 space-y-1">
-                                <p>Duration: 60 minutes</p>
+                                <p>Duration: {quizData.length} minutes</p>
                                 <p>Questions: {quizData.length}</p>
                                 <p>Type: Multiple Choice</p>
                             </div>
