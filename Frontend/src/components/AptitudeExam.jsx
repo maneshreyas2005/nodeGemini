@@ -17,7 +17,7 @@ const QuizApp = () => {
 
     const location = useLocation();
 
-    const count = location.state?.count || 0;
+    const count = location.state?.count || 10;
     const topic = location.state?.topic || "Quantitative Aptitude";
 
 
@@ -32,6 +32,9 @@ const QuizApp = () => {
                         withCredentials: false
                     }
                 );
+                console.log(topic)
+                console.log(res.data)
+                console.log('Received:', res.data.length, 'questions');
 
                 const formattedQuestions = res.data.map((mcq, index) => ({
                     id: index + 1,
