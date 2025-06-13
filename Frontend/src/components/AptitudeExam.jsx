@@ -32,8 +32,6 @@ const QuizApp = () => {
                         withCredentials: false
                     }
                 );
-                console.log(topic)
-                console.log(res.data)
 
                 const formattedQuestions = res.data.map((mcq, index) => ({
                     id: index + 1,
