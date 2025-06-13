@@ -9,7 +9,7 @@ const app = express();
 
 // ✅ FIXED CORS
 app.use(cors({
-    origin: ['http://localhost:5173','http://localhost:5174', 'https://nodegemini-frontend.onrender.com'],
+    origin: ['https://nodegemini-frontend.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: false, // Optional: only needed if using cookies or auth headers
 }));
