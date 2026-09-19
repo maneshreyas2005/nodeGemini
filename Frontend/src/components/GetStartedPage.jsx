@@ -52,10 +52,12 @@ const GetStartedPage = () => {
             // localStorage.setItem('quizData', JSON.stringify(response.data));
 
             // Navigate to the exam page after data is received
-            navigate('/AptitudeExam', { state : {
-                count: questionCount,
-                topic: questionTopic
-            } });
+            navigate('/AptitudeExam', {
+                state: {
+                    count: questionCount,
+                    topic: questionTopic
+                }
+            });
         } catch (error) {
             console.error("Error fetching questions:", error);
         }
@@ -87,7 +89,9 @@ const GetStartedPage = () => {
                             <option value="Logical Reasoning">Logical Reasoning Aptitude</option>
                             <option value="Verbal Ability">Verbal Ability Aptitude</option>
                             <option value="Programming">Programming Aptitude</option>
-                            <option value="Programming">Mixed Aptitude </option>
+                            <option value="Mixed">Mixed Aptitude </option>
+                            <option value="Technical">Technical</option>
+
                             {/* Add more topics as needed */}
                         </select>
                     </div>
@@ -104,7 +108,7 @@ const GetStartedPage = () => {
                             onChange={(e) => setQuestionCount(Number(e.target.value))}
                             className="w-40 p-2 border border-gray-300 rounded-md"
                         >
-                            {[10, 20, 30, 40, 50].map((count) => (
+                            {[10, 20, 30, 40].map((count) => (
                                 <option key={count} value={count}>
                                     {count}
                                 </option>

@@ -6,15 +6,25 @@ import App from './App.jsx'
 import GetStartedPage from './components/GetStartedPage.jsx'
 import AptitudeExam from './components/AptitudeExam.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import SignupForm from './components/SignupForm.jsx'
+import LoginForm from './components/LoginForm.jsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <SignupForm/>,
+  },
+  {
+    path: '/GetStartedPage',
     element: <GetStartedPage />,
   },
   {
     path: '/AptitudeExam',
     element: <AptitudeExam />,
+  },
+  {
+    path: '/LoginForm',
+    element: <LoginForm />,
   }
 ])
 

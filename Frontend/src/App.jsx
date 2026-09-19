@@ -4,12 +4,13 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import AptitudeExam from './components/AptitudeExam'
 import GetStartedPage from './components/GetStartedPage'
+import SignupForm from './components/SignupForm'
 
 function App() {
 
   return (
     <div>
-      <GetStartedPage />
+      <SignupForm/>
     </div>
   )
 }

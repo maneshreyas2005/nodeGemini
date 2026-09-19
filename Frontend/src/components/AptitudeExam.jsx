@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Check, X, RotateCcw, Send, Clock } from 'lucide-react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const QuizApp = () => {
+    const navigate = useNavigate();
+
     const [quizData, setQuizData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -14,10 +18,12 @@ const QuizApp = () => {
     const [showResults, setShowResults] = useState(false);
     const [timeLeft, setTimeLeft] = useState(null); // 10 minutes timer
     const [quizStarted, setQuizStarted] = useState(false);
+    const [quizId, setQuizId] = useState(null);
+    const [studentID, setStudentID] = useState(0);
 
     const location = useLocation();
 
-    const count = location.state?.count || 0;
+    const count = location.state?.count || 10;
     const topic = location.state?.topic || "Quantitative Aptitude";
 
 
@@ -34,12 +40,13 @@ const QuizApp = () => {
                 );
                 console.log(topic)
                 console.log(res.data)
+                console.log('Received:', res.data.length, 'questions');
 
                 const formattedQuestions = res.data.map((mcq, index) => ({
                     id: index + 1,
                     question: mcq.question,
                     options: mcq.options,
-                    correctAnswer: mcq.answer
+                    correctAnswer: mcq.answer,
                 }));
 
                 setQuizData(formattedQuestions);
@@ -79,6 +86,77 @@ const QuizApp = () => {
         }));
     };
 
+    useEffect(() => {
+        const rawStudent = localStorage.getItem('user');
+        if (rawStudent) {
+            const student = JSON.parse(rawStudent); // convert string to object
+            console.log(student.id); // access id
+            setStudentID(student.id)
+        }
+    }, []);
+
+
+    const saveQuizResults = async () => {
+        try {
+            // Fix studentId parsing
+            const rawStudentId = localStorage.getItem('userId');
+            console.log(localStorage.getItem('userId'));
+            const studentId = rawStudentId ? parseInt(rawStudentId) : null;
+
+            // if (!studentId || isNaN(studentId)) {
+            //     throw new Error('Invalid student ID');
+            // }
+
+            const newQuizId = Date.now();
+            setQuizId(newQuizId);
+
+            // Simplify payload to match backend expectations
+            const payload = {
+                studentId: studentID,
+                quizId: newQuizId,
+                topic,
+                questions: quizData.map(q => ({
+                    id: q.id, // Include question ID
+                    question_text: q.question,
+                    correct_answer_index: q.correctAnswer,
+                    options: q.options // Send as simple array
+                })),
+                answers: Object.keys(answers).reduce((acc, questionId) => {
+                    acc[questionId] = answers[questionId];
+                    return acc;
+                }, {}),
+                markedQuestions: Array.from(markedQuestions),
+                timeTaken: (quizData.length * 60) - timeLeft
+            };
+
+            console.log('Sending payload:', payload);
+
+            const response = await axios.post('http://localhost:3001/mcqs/save-quiz',
+                payload,
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: false
+                }
+            );
+
+            console.log('Quiz results saved successfully', response.data);
+            return true;
+        } catch (error) {
+            console.error('Failed to save quiz results:', error);
+            return false;
+        }
+    };
+
+    const handleSubmitQuiz = async () => {
+        const success = await saveQuizResults();
+        if (success) {
+            setQuizSubmitted(true);
+            setShowResults(true);
+        } else {
+            alert('Failed to save quiz results. Please try again.');
+        }
+    };
+
     const handleMarkAsRead = () => {
         setMarkedQuestions(prev => {
             const newSet = new Set(prev);
@@ -112,10 +190,10 @@ const QuizApp = () => {
         setCurrentQuestionIndex(index);
     };
 
-    const handleSubmitQuiz = () => {
-        setQuizSubmitted(true);
-        setShowResults(true);
-    };
+    // const handleSubmitQuiz = () => {
+    //     setQuizSubmitted(true);
+    //     setShowResults(true);
+    // };
 
     const calculateResults = () => {
         let correct = 0;
@@ -138,6 +216,7 @@ const QuizApp = () => {
     };
 
     const resetQuiz = () => {
+        navigate('/GetStartedPage');
         setAnswers({});
         setMarkedQuestions(new Set());
         setQuizSubmitted(false);
@@ -181,6 +260,7 @@ const QuizApp = () => {
                             <div className="text-sm text-blue-700 space-y-1">
                                 <p>Duration: {quizData.length} minutes</p>
                                 <p>Questions: {quizData.length}</p>
+                                <p>Topic: {topic} Questions</p>
                                 <p>Type: Multiple Choice</p>
                             </div>
                         </div>
@@ -384,57 +464,6 @@ const QuizApp = () => {
                     </div>
                 </div>
 
-                {/* Navigation Panel */}
-                {/* <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Question Navigator</h3>
-
-                    <div className="grid grid-cols-5 gap-2 mb-6">
-                        {quizData.map((question, index) => {
-                            const status = getQuestionStatus(question.id);
-                            return (
-                                <button
-                                    key={question.id}
-                                    onClick={() => goToQuestion(index)}
-                                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentQuestionIndex === index
-                                        ? 'bg-blue-500 text-white'
-                                        : status === 'answered'
-                                            ? 'bg-green-100 text-green-800 border border-green-300'
-                                            : status === 'marked'
-                                                ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {index + 1}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                        <div className="flex items-center space-x-2 text-sm">
-                            <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                            <span>Answered ({Object.keys(answers).length})</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm">
-                            <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
-                            <span>Marked ({markedQuestions.size})</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm">
-                            <div className="w-4 h-4 bg-gray-100 rounded"></div>
-                            <span>Unattempted ({quizData.length - Object.keys(answers).length})</span>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleSubmitQuiz}
-                        className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-medium inline-flex items-center justify-center space-x-2"
-                    >
-                        <Send className="w-5 h-5" />
-                        <span>Submit Quiz</span>
-                    </button>
-                </div> */}
-                {/* Navigation Panel */}
-                {/* Navigation Panel */}
                 <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col h-full">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Question Navigator</h3>
 
