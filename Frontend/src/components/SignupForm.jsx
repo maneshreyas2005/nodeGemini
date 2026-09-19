@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import Navbar from './Navbar';
+import { ArrowRight, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const SignupForm = () => {
     const navigate = useNavigate();
@@ -22,7 +24,7 @@ const SignupForm = () => {
         }
 
         if (!formData.get('collegeId')?.trim()) {
-            newErrors.collegeId = 'College ID is required';
+            newErrors.collegeId = 'College ID or Student ID is required';
         }
 
         const password = formData.get('password');
@@ -31,9 +33,9 @@ const SignupForm = () => {
         } else if (password.length < 8) {
             newErrors.password = 'Password must be at least 8 characters';
         } else if (!/[A-Z]/.test(password)) {
-            newErrors.password = 'Password must contain at least one uppercase letter';
+            newErrors.password = 'Must contain at least one uppercase letter';
         } else if (!/[0-9]/.test(password)) {
-            newErrors.password = 'Password must contain at least one number';
+            newErrors.password = 'Must contain at least one number';
         }
 
         if (password !== formData.get('confirmPassword')) {
@@ -41,7 +43,7 @@ const SignupForm = () => {
         }
 
         if (!formData.get('terms')) {
-            newErrors.terms = 'You must accept the terms and conditions';
+            newErrors.terms = 'Please accept the terms to proceed';
         }
 
         return newErrors;
@@ -62,7 +64,11 @@ const SignupForm = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:3001/signup', {
+            const backendUrl = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3001' 
+                : 'https://nodegemini-backend.onrender.com';
+
+            const response = await fetch(`${backendUrl}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,7 +84,7 @@ const SignupForm = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Signup failed');
+                throw new Error(data.message || data.error || 'Signup failed');
             }
 
             // Store the token in localStorage
@@ -88,10 +94,10 @@ const SignupForm = () => {
             setSuccess(true);
             form.reset();
 
-            // Redirect to dashboard after successful signup
+            // Redirect to get started after successful signup
             setTimeout(() => {
                 navigate('/GetStartedPage');
-            }, 2000);
+            }, 1200);
         } catch (error) {
             setErrors({ form: error.message || 'An error occurred during signup. Please try again.' });
         } finally {
@@ -100,128 +106,160 @@ const SignupForm = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
-            <div className="bg-white shadow-md rounded-xl border border-gray-200 w-full max-w-md p-8">
-                <div className="text-center mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-800">Create Account</h1>
-                    <p className="text-sm text-gray-500">Join our platform to get started</p>
-                </div>
+        <div className="min-h-screen bg-[#fec745] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+            <Navbar />
 
-                {success && (
-                    <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-                        Account created successfully! Redirecting to dashboard...
-                    </div>
-                )}
-
-                {errors.form && (
-                    <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-                        {errors.form}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                    <div>
-                        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input
-                            type="text"
-                            id="fullName"
-                            name="fullName"
-                            required
-                            className={`w-full px-4 py-3 border ${errors.fullName ? 'border-red-500' : 'border-gray-300'} rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-                        />
-                        {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
+            <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+                <div className="max-w-lg w-full">
+                    {/* Header Pill */}
+                    <div className="text-center mb-6">
+                        <div className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-black px-3.5 py-1.5 rounded-full border-2 border-black mb-2 brutal-shadow-sm">
+                            <Sparkles className="w-3.5 h-3.5 text-[#fec745]" />
+                            <span>JOIN SUPERPREP</span>
+                        </div>
+                        <h1 className="text-3xl sm:text-4xl font-black text-[#0a0a0a] tracking-tight">
+                            Create Free Account
+                        </h1>
+                        <p className="text-sm font-semibold text-black/70 mt-1">
+                            Clear your placement aptitude rounds with confidence
+                        </p>
                     </div>
 
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            required
-                            className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-                        />
-                        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                    {/* Brutalist Signup Card */}
+                    <div className="brutal-card p-6 sm:p-8 bg-[#fffef8]">
+                        {success && (
+                            <div className="p-4 rounded-xl border-2 border-black mb-6 bg-green-100 text-green-900 flex items-center gap-3 text-sm font-bold">
+                                <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-600" />
+                                <span>Account created successfully! Redirecting to setup...</span>
+                            </div>
+                        )}
+
+                        {errors.form && (
+                            <div className="p-4 rounded-xl border-2 border-black mb-6 bg-red-100 text-red-900 flex items-center gap-3 text-sm font-bold">
+                                <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+                                <span>{errors.form}</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-gray-800 mb-1.5">
+                                    Full Name
+                                </label>
+                                <input
+                                    type="text"
+                                    name="fullName"
+                                    placeholder="Jane Doe"
+                                    className={`w-full px-4 py-2.5 rounded-xl border-2 font-medium text-black focus:bg-amber-50/40 focus:outline-none brutal-shadow-sm ${
+                                        errors.fullName ? 'border-red-500 bg-red-50' : 'border-black bg-white'
+                                    }`}
+                                />
+                                {errors.fullName && <p className="text-xs font-bold text-red-600 mt-1">{errors.fullName}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-800 mb-1.5">
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="jane@college.edu"
+                                        className={`w-full px-4 py-2.5 rounded-xl border-2 font-medium text-black focus:bg-amber-50/40 focus:outline-none brutal-shadow-sm ${
+                                            errors.email ? 'border-red-500 bg-red-50' : 'border-black bg-white'
+                                        }`}
+                                    />
+                                    {errors.email && <p className="text-xs font-bold text-red-600 mt-1">{errors.email}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-800 mb-1.5">
+                                        College / Roll ID
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="collegeId"
+                                        placeholder="CS2026-089"
+                                        className={`w-full px-4 py-2.5 rounded-xl border-2 font-medium text-black focus:bg-amber-50/40 focus:outline-none brutal-shadow-sm ${
+                                            errors.collegeId ? 'border-red-500 bg-red-50' : 'border-black bg-white'
+                                        }`}
+                                    />
+                                    {errors.collegeId && <p className="text-xs font-bold text-red-600 mt-1">{errors.collegeId}</p>}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-800 mb-1.5">
+                                        Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="••••••••"
+                                        className={`w-full px-4 py-2.5 rounded-xl border-2 font-medium text-black focus:bg-amber-50/40 focus:outline-none brutal-shadow-sm ${
+                                            errors.password ? 'border-red-500 bg-red-50' : 'border-black bg-white'
+                                        }`}
+                                    />
+                                    {errors.password && <p className="text-xs font-bold text-red-600 mt-1">{errors.password}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-800 mb-1.5">
+                                        Confirm Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        placeholder="••••••••"
+                                        className={`w-full px-4 py-2.5 rounded-xl border-2 font-medium text-black focus:bg-amber-50/40 focus:outline-none brutal-shadow-sm ${
+                                            errors.confirmPassword ? 'border-red-500 bg-red-50' : 'border-black bg-white'
+                                        }`}
+                                    />
+                                    {errors.confirmPassword && <p className="text-xs font-bold text-red-600 mt-1">{errors.confirmPassword}</p>}
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <label className="flex items-start gap-2.5 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="terms"
+                                        className="mt-1 w-4 h-4 rounded border-2 border-black accent-black focus:ring-0"
+                                    />
+                                    <span className="text-xs font-semibold text-gray-700 leading-snug">
+                                        I agree to the Terms of Service and acknowledge tests are generated via Gemini AI.
+                                    </span>
+                                </label>
+                                {errors.terms && <p className="text-xs font-bold text-red-600 mt-1">{errors.terms}</p>}
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full brutal-btn-primary py-3.5 text-base font-black flex items-center justify-center gap-2 mt-4"
+                            >
+                                {isSubmitting ? (
+                                    <span>Registering Account...</span>
+                                ) : (
+                                    <>
+                                        <span>Create Account</span>
+                                        <ArrowRight className="w-4 h-4 stroke-[3]" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 pt-5 border-t-2 border-dashed border-gray-200 text-center">
+                            <p className="text-xs font-bold text-gray-600">
+                                Already have an account?{' '}
+                                <Link to="/LoginForm" className="text-black font-black underline hover:text-[#ff851b]">
+                                    Log in here
+                                </Link>
+                            </p>
+                        </div>
                     </div>
-
-                    <div>
-                        <label htmlFor="collegeId" className="block text-sm font-medium text-gray-700 mb-1">College ID</label>
-                        <input
-                            type="text"
-                            id="collegeId"
-                            name="collegeId"
-                            required
-                            className={`w-full px-4 py-3 border ${errors.collegeId ? 'border-red-500' : 'border-gray-300'} rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-                        />
-                        {errors.collegeId && <p className="mt-1 text-sm text-red-600">{errors.collegeId}</p>}
-                    </div>
-
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            required
-                            className={`w-full px-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-                        />
-                        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-                        <p className="mt-1 text-xs text-gray-500">Password must be at least 8 characters with 1 uppercase letter and 1 number</p>
-                    </div>
-
-                    <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            required
-                            className={`w-full px-4 py-3 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-                        />
-                        {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
-                    </div>
-
-                    <div className="flex items-start space-x-2">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            name="terms"
-                            required
-                            className={`mt-1 ${errors.terms ? 'border-red-500' : ''}`}
-                        />
-                        <label htmlFor="terms" className="text-sm text-gray-600">
-                            I agree to the <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
-                        </label>
-                    </div>
-                    {errors.terms && <p className="mt-1 text-sm text-red-600">{errors.terms}</p>}
-
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`w-full py-3 rounded-md text-white font-medium transition ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-                    >
-                        {isSubmitting ? (
-                            <span className="flex items-center justify-center">
-                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Creating Account...
-                            </span>
-                        ) : 'Create Account'}
-                    </button>
-                </form>
-
-                <div className="relative my-6 text-center">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative bg-white px-4 text-sm text-gray-500">or</div>
-                </div>
-
-                <div className="text-center text-sm text-gray-600">
-                    Already have an account?{' '}
-                    <a href="/LoginForm" className="text-blue-600 hover:underline font-medium">Sign in</a>
                 </div>
             </div>
         </div>
