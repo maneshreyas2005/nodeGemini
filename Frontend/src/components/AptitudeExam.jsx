@@ -31,7 +31,7 @@ const QuizApp = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await axios.post('http://localhost:3001/mcqs/generate',
+                const res = await axios.post('https://nodegemini-backend.onrender.com/mcqs/generate',
                     { topic: topic, count: count },
                     {
                         headers: { 'Content-Type': 'application/json' },
@@ -260,7 +260,7 @@ const QuizApp = () => {
                             <div className="text-sm text-blue-700 space-y-1">
                                 <p>Duration: {quizData.length} minutes</p>
                                 <p>Questions: {quizData.length}</p>
-                                <p>Topic: {topic} Questions</p>
+                                <p>Topic: {topic} </p>
                                 <p>Type: Multiple Choice</p>
                             </div>
                         </div>
